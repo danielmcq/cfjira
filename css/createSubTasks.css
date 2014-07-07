@@ -1,0 +1,22 @@
+body {
+	padding-top: 220px;
+}
+
+.list-group {
+	margin-bottom: 5px;
+}
+.list-group-item {
+	padding: 3px;
+}
+
+nav .panel {
+	margin-bottom: 5px;
+}
+
+#loggedInUser {
+	display: none;
+}
+
+#issueStatus {
+	font-weight:bold;
+}
