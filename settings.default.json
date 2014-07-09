@@ -1,0 +1,18 @@
+{
+	"datasource": "default",
+	"datasources": {
+		"default": {
+			"auth": {
+				"user": "",
+				"pass": ""
+			},
+			"description": "",
+			"format": "json",
+			"host": "",
+			"path": "/rest/api/2/",
+			"port": 80,
+			"title": "",
+			"type": "rest"
+		}
+	}
+}
