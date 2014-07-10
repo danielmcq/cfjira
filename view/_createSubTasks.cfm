@@ -38,10 +38,9 @@
 		return rSummary;
 	}
 
-	jiraWs      = new jiraSvc();
-	qSubTasks   = jiraWs.getSubTaskTypes();
-	lRequired   = ArrayToList( jiraWs.getRequiredIssueTypes() );
-	issueTypes  = jiraWs.getIssueTypes();
+	jiraWs         = new jiraSvc();
+	subtaskTypes   = jiraWs.getSubTaskTypes();
+	requiredTasks  = jiraWs.getRequiredIssueTypes();
 </cfscript>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 	<div class="container-fluid">
@@ -129,36 +128,34 @@
 		</div>
 	</div>
 	<ul class="list-group" id="subTasks">
-	<cfloop query="qSubTasks">
+	<cfloop collection="#subtaskTypes#" item="type">
 	<cfoutput>
-		<li id="taskrow_#qSubtasks.id#" class="collapse list-group-item taskrow task_#qSubtasks.id#<cfif ListFind(lRequired,qSubtasks.id)> required list-group-item-danger</cfif>" x-jira-issue-type="#qSubtasks.id#">
-			<cfif StructKeyExists( issueTypes, qSubtasks.id )>
-			<img src="#issueTypes[qSubtasks.id].iconUrl#" title="#issueTypes[qSubtasks.id].name#">
-			</cfif>
-			<a href="##type-group-#qSubtasks.id#" data-toggle="collapse" data-parent="##taskrow_#qSubtasks.id#">
-				#qSubTasks.pname#<cfif ListFind(lRequired,qSubtasks.id)>*</cfif>
+		<li id="taskrow_#subtaskTypes[type].id#" class="collapse list-group-item taskrow task_#subtaskTypes[type].id#<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )> required list-group-item-danger</cfif>" x-jira-issue-type="#subtaskTypes[type].id#">
+			<img src="#subtaskTypes[type].iconUrl#" title="#subtaskTypes[type].name#">
+			<a href="##type-group-#subtaskTypes[type].id#" data-toggle="collapse" data-parent="##taskrow_#subtaskTypes[type].id#">
+				#subtaskTypes[type].name#<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )>*</cfif>
 				<span class="badge">0</span>
 			</a>
-			<ul class="list-group list-collapse collapse in" id="type-group-#qSubtasks.id#">
-			<cfloop from="1" to="#gettaskCount(qSubtasks.id)#" index="i">
+			<ul class="list-group list-collapse collapse in" id="type-group-#subtaskTypes[type].id#">
+			<cfloop from="1" to="#gettaskCount(subtaskTypes[type].id)#" index="i">
 				<li class="list-group-item">
-					<input type="hidden" id="issueTypeVal_#qSubtasks.id#_#i#" value="#qSubtasks.id#">
-					<div class="input-group input-group-sm<cfif ListFind(lRequired,qSubtasks.id)> has-error</cfif>">
+					<input type="hidden" id="issueTypeVal_#subtaskTypes[type].id#_#i#" value="#subtaskTypes[type].id#">
+					<div class="input-group input-group-sm<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )> has-error</cfif>">
 						<span class="input-group-addon">
 							<input
 								type="checkbox"
-								id="issueType_#qSubtasks.id#"
-								name="issueType_#qSubtasks.id#"
-								value="#qSubtasks.id#_#i#"
-								class="issueType_#qSubtasks.id#"
+								id="issueType_#subtaskTypes[type].id#"
+								name="issueType_#subtaskTypes[type].id#"
+								value="#subtaskTypes[type].id#_#i#"
+								class="issueType_#subtaskTypes[type].id#"
 							>
 						</span>
 						<input
 							class="form-control"
 							type="text"
-							id="summary_#qSubtasks.id#_#i#"
-							name="summary_#qSubtasks.id#"
-							value="#getTaskSummary(qSubTasks.id,i,qSubTasks.pname)#"
+							id="summary_#subtaskTypes[type].id#_#i#"
+							name="summary_#subtaskTypes[type].id#"
+							value="#getTaskSummary(subtaskTypes[type].id,i,subtaskTypes[type].name)#"
 							maxlength="255"
 						>
 					</div>
