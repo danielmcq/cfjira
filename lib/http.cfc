@@ -106,6 +106,7 @@ component name="http" extends="com.adobe.coldfusion.http"
 			if (
 					StructKeyExists( httpResponse.ResponseHeader, "Content-Type" )
 					&& FindNoCase( "application/json", httpResponse.ResponseHeader[ "Content-Type" ] )
+					&& IsJSON( httpResponse.Filecontent.toString() )
 			) {
 				VARIABLES.request.response.body = DeserializeJson( httpResponse.Filecontent.toString() );
 			} else if (

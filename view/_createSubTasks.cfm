@@ -1,41 +1,53 @@
 <cfscript>
 	private any function getTaskCount ( required numeric id ) {
-		var TASK_COUNTS = {
-			"29"  = 4,
-			"12"  = 2
-		};
-		var rCount = 1;
+		var appConfig = APPLICATION.getConfig();
+		var output = 1;
 
-		if ( StructKeyExists( TASK_COUNTS, Arguments.id ) ) {
-			rCount = TASK_COUNTS[Arguments.id];
+		if (
+				StructKeyExists( appConfig, "template" )
+				&& StructKeyExists( appConfig, "templates" )
+				&& StructKeyExists( appConfig.templates, appConfig.template )
+				&& StructKeyExists( appConfig.templates[ appConfig.template ], "tasks" )
+				&& StructKeyExists( appConfig.templates[ appConfig.template ].tasks, ARGUMENTS.id )
+				&& StructKeyExists( appConfig.templates[ appConfig.template ].tasks[ ARGUMENTS.id ], "count" )
+		) {
+			output = appConfig.templates[ appConfig.template ].tasks[ ARGUMENTS.id ].count;
 		}
 
-		return rCount;
+		return output;
 	}
 
 
 	private any function getTaskSummary ( required numeric id, required numeric tCount, required string summary ) {
-		var rSummary = "";
+		var appConfig = APPLICATION.getConfig();
+		var output = "";
+		var template = {};
 
-		switch ( Arguments.id ) {
-			case "12":
-				if ( Arguments.tCount == 1 ) {
-					rSummary = "Create Test Case";
-				} else if ( Arguments.tCount == 2 ) {
-					rSummary = "Execute Test Case";
-				}
+		if (
+				StructKeyExists( appConfig, "template" )
+				&& StructKeyExists( appConfig, "templates" )
+				&& StructKeyExists( appConfig.templates, appConfig.template )
+				&& StructKeyExists( appConfig.templates[ appConfig.template ], "tasks" )
+				&& StructKeyExists( appConfig.templates[ appConfig.template ].tasks, ARGUMENTS.id )
+		) {
+			template = appConfig.templates[ appConfig.template ].tasks[ ARGUMENTS.id ];
 
-				break;
-			case "2":
-			case "29":
-				// Do nothing. Blank summary
-				break;
-			default:
-				rSummary = Trim(Replace(Arguments.summary,'Task',''));
-				break;
+			if ( StructKeyExists( template, "defaultSummary" ) ) {
+				output = template.defaultSummary;
+			}
+
+			if (
+					StructKeyExists( template, "summaries" )
+					&& IsArray( template.summaries )
+					&& ARGUMENTS.tCount <= ArrayLen( template.summaries )
+			) {
+				output = template.summaries[ ARGUMENTS.tCount ];
+			}
+		} else {
+			output = Trim( Replace( ARGUMENTS.summary, "Task", "" ) );
 		}
 
-		return rSummary;
+		return output;
 	}
 
 	jiraWs         = new jiraSvc();
@@ -58,7 +70,7 @@
 			<form method="post" action="#" class="navbar-form navbar-left" name="parentIssueForm" id="parentIssueForm" role="search">
 				<button class="btn btn-primary btn-sm" type="button">Find Parent Issue</button>
 				<div class="form-group">
-					<input type="text" class="form-control input-sm" id="parentKey" name="parentKey" value="" autocomplete="off"  placeholder="XXX-#####">
+					<input type="search" class="form-control input-sm" id="parentKey" name="parentKey" value="" autocomplete="off" placeholder="XXX-#####">
 				</div>
 			</form>
 
@@ -73,6 +85,7 @@
 						id="username"
 						name="username"
 						placeholder="Jira Username"
+						autocomplete="off"
 						required
 						autofocus
 					>
@@ -84,6 +97,7 @@
 						type="password"
 						id="pwd"
 						name="password"
+						autocomplete="off"
 						placeholder="Jira Password"
 						required
 					>
@@ -128,34 +142,34 @@
 		</div>
 	</div>
 	<ul class="list-group" id="subTasks">
-	<cfloop collection="#subtaskTypes#" item="type">
+	<cfloop array="#subtaskTypes#" index="type">
 	<cfoutput>
-		<li id="taskrow_#subtaskTypes[type].id#" class="collapse list-group-item taskrow task_#subtaskTypes[type].id#<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )> required list-group-item-danger</cfif>" x-jira-issue-type="#subtaskTypes[type].id#">
-			<img src="#subtaskTypes[type].iconUrl#" title="#subtaskTypes[type].name#">
-			<a href="##type-group-#subtaskTypes[type].id#" data-toggle="collapse" data-parent="##taskrow_#subtaskTypes[type].id#">
-				#subtaskTypes[type].name#<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )>*</cfif>
+		<li id="taskrow_#type.id#" class="collapse list-group-item taskrow task_#type.id#<cfif ArrayFind( requiredTasks, type.id )> required list-group-item-danger</cfif>" x-jira-issue-type="#type.id#">
+			<img src="#type.iconUrl#" title="#type.name#">
+			<a href="##type-group-#type.id#" data-toggle="collapse" data-parent="##taskrow_#type.id#">
+				#type.name#<cfif ArrayFind( requiredTasks, type.id )>*</cfif>
 				<span class="badge">0</span>
 			</a>
-			<ul class="list-group list-collapse collapse in" id="type-group-#subtaskTypes[type].id#">
-			<cfloop from="1" to="#gettaskCount(subtaskTypes[type].id)#" index="i">
+			<ul class="list-group list-collapse collapse in" id="type-group-#type.id#">
+			<cfloop from="1" to="#gettaskCount(type.id)#" index="i">
 				<li class="list-group-item">
-					<input type="hidden" id="issueTypeVal_#subtaskTypes[type].id#_#i#" value="#subtaskTypes[type].id#">
-					<div class="input-group input-group-sm<cfif ArrayFind( requiredTasks, subtaskTypes[type].id )> has-error</cfif>">
+					<input type="hidden" id="issueTypeVal_#type.id#_#i#" value="#type.id#">
+					<div class="input-group input-group-sm<cfif ArrayFind( requiredTasks, type.id )> has-error</cfif>">
 						<span class="input-group-addon">
 							<input
 								type="checkbox"
-								id="issueType_#subtaskTypes[type].id#"
-								name="issueType_#subtaskTypes[type].id#"
-								value="#subtaskTypes[type].id#_#i#"
-								class="issueType_#subtaskTypes[type].id#"
+								id="issueType_#type.id#"
+								name="issueType_#type.id#"
+								value="#type.id#_#i#"
+								class="issueType_#type.id#"
 							>
 						</span>
 						<input
 							class="form-control"
 							type="text"
-							id="summary_#subtaskTypes[type].id#_#i#"
-							name="summary_#subtaskTypes[type].id#"
-							value="#getTaskSummary(subtaskTypes[type].id,i,subtaskTypes[type].name)#"
+							id="summary_#type.id#_#i#"
+							name="summary_#type.id#"
+							value="#getTaskSummary(type.id,i,type.name)#"
 							maxlength="255"
 						>
 					</div>

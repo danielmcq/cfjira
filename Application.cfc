@@ -17,7 +17,7 @@ component name="JiraWS" displayname="Jira Web Service"
 
 
 	// Number in seconds to timeout Application Locks
-	VARIABLES.LOCK_TIMEOUT              = 5;
+	VARIABLES.LOCK_TIMEOUT = 5;
 
 
 	public boolean function OnApplicationStart()
@@ -26,21 +26,24 @@ component name="JiraWS" displayname="Jira Web Service"
 		lock
 			scope    = "APPLICATION"
 			type     = "Exclusive"
-			timeout  = getLockTimeout()
+			timeout  = VARIABLES.LOCK_TIMEOUT
 		{
-			// Nested struct of configuration settings
+			// Configuration related variables and methods
 			APPLICATION[ "config" ]          = {};
+			APPLICATION[ "getConfig" ]       = getConfig;
+			APPLICATION[ "setConfig" ]       = setConfig;
 			APPLICATION[ "getLockTimeout" ]  = getLockTimeout;
 			// Make the getName() method accessible globally
 			APPLICATION[ "getName" ]         = getName;
 		}
+		_loadConfig ( APPLICATION.config, "APPLICATION" );
 
 		return true;
 	}
 
 
 	public void function OnSessionStart () {
-		SESSION["cookies"] = {"Jira" = new helper.Cookie("SESSION")};
+		SESSION["cookies"] = {"Jira" = new helper.Cookie( lockScope="SESSION" )};
 
 		return;
 	}
@@ -49,11 +52,17 @@ component name="JiraWS" displayname="Jira Web Service"
 	public void function OnRequest ( required string TargetPage )
 			hint="Fires once per page request into this app."
 	{
-		param name="URL.format"  default="html";
-		param name="URL.mode"    default="createSubTasks";
+		param name="URL.format"        default="html";
+		param name="URL.mode"          default="createSubTasks";
+		param name="URL.reloadConfig"  default="false";
 
-		var htmlBody      = "";
 		var bodyTemplate  = "";
+		var htmlBody      = "";
+
+		// Dynamically reload the config from files.
+		if ( URL.reloadConfig ) {
+			_loadConfig ( APPLICATION.config, "APPLICATION" );
+		}
 
 		// Modes can only contain letters and underscores
 		URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
@@ -76,6 +85,26 @@ component name="JiraWS" displayname="Jira Web Service"
 	}
 
 
+	public struct function getConfig ( string path="" ) {
+		var config = {};
+		var key = "";
+
+		lock
+			scope    = "APPLICATION"
+			type     = "ReadOnly"
+			timeout  = 5
+		{
+			config = Duplicate( APPLICATION.config );
+		}
+
+		if ( Len( ARGUMENTS.path ) ) {
+
+		}
+
+		return config;
+	}
+
+
 	public numeric function getLockTimeout () {
 		return VARIABLES.LOCK_TIMEOUT;
 	}
@@ -85,6 +114,14 @@ component name="JiraWS" displayname="Jira Web Service"
 			hint="Returns the name of the current app instance."
 	{
 		return APPLICATION.GetApplicationSettings().Name;
+	}
+
+
+	public void function setConfig () {
+		// TODO: Code this functionality. Make sure to update the variable in
+		// memory as well as write changes to the file.
+
+		return;
 	}
 
 
@@ -99,6 +136,7 @@ component name="JiraWS" displayname="Jira Web Service"
 
 
 	private string function _applyHtmlTemplate ( string body="", string templateName = "index.cfm" ) {
+		var appConfig = getConfig();
 		var output = "";
 
 		if ( FileExists( ARGUMENTS.templateName ) || FileExists( ExpandPath( ARGUMENTS.templateName ) ) ) {
@@ -146,6 +184,75 @@ component name="JiraWS" displayname="Jira Web Service"
 
 	private void function _htmlResponse ( string body="" ) {
 		WriteOutput( _applyHtmlTemplate( ARGUMENTS.body ) );
+
+		return;
+	}
+
+
+	private void function _loadConfig ( required struct config, string lockScope="APPLICATION" ) {
+		var FILENAME_CONFIG_DEFAULT = "settings.default.json";
+		var FILENAME_CONFIG = "settings.json";
+		var ERROR_DEFAULT_CONFIG_NOT_FOUND = "The default configuration file '" & FILENAME_CONFIG_DEFAULT & "' is not found or accessible in the directory of Application.cfc";
+		var ERROR_GENERAL = "Error loading settings";
+		var ERROR_INCORRECT_FORMAT = "Settings file cannot be parsed as JSON";
+		var ERROR_TYPE = "Settings";
+
+		var error = "";
+		var fileContents = "";
+		var key = "";
+		var settings = {};
+
+		try {
+			// Make sure the default config exists first. This is the base of
+			// the settings for the application.
+			if ( FileExists( ExpandPath( FILENAME_CONFIG_DEFAULT ) ) ) {
+				fileContents = FileRead( ExpandPath( FILENAME_CONFIG_DEFAULT ) );
+
+				// Make sure the config file is properly formatted.
+				if ( IsJSON( fileContents ) ) {
+					settings = DeserializeJSON( fileContents );
+
+					lock
+						scope    = ARGUMENTS.lockScope
+						type     = "Exclusive"
+						timeout  = getLockTimeout()
+					{
+						StructAppend( ARGUMENTS.config, settings, true );
+					}
+				} else {
+					error = ERROR_INCORRECT_FORMAT;
+				}
+			} else {
+				error = ERROR_DEFAULT_CONFIG_NOT_FOUND;
+			}
+
+			if ( !Len( error ) ) {
+				// Check to see if settings file doesn't exist
+				if ( !FileExists( ExpandPath( FILENAME_CONFIG ) ) ) {
+					FileCopy( ExpandPath( FILENAME_CONFIG_DEFAULT ), ExpandPath( FILENAME_CONFIG ) );
+				} else {
+					fileContents = FileRead( ExpandPath( FILENAME_CONFIG ) );
+
+					if ( IsJSON( fileContents ) ) {
+						settings = DeserializeJSON( fileContents );
+
+						lock
+							scope    = ARGUMENTS.lockScope
+							type     = "Exclusive"
+							timeout  = getLockTimeout()
+						{
+							StructAppend( ARGUMENTS.config, settings, true );
+						}
+					}
+				}
+			}
+		} catch ( any e ) {
+			// Do nothing for now
+		}
+
+		if ( Len( error ) ) {
+			Throw( type=ERROR_TYPE, message=ERROR_GENERAL, detail=error );
+		}
 
 		return;
 	}

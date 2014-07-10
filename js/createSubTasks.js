@@ -48,7 +48,11 @@
 	// BEGIN: Private methods
 	function getJiraUrl ( callback ) {
 		$.get("?format=json",function(data,textStatus,jqXHR){
-			setBaseUrl( data.baseUrl );
+			// TODO: The whole "getBasrUrl" functionality needs to be re-arch'd
+			// to handle the delay in the response
+			//setBaseUrl( data.baseUrl );
+			// Hardcoding until this can be fixed
+			setBaseUrl( "jiraSvc.cfc" );
 			callback ? callback( getBaseUrl() ) : null;
 		});
 	};
@@ -60,18 +64,22 @@
 
 
 	function setCreateTaskUrl ( path, callback ) {
-		urlJiraCreateSubtasks = getBaseUrl() + ( path || "?method=createIssueSubtask" );
+		getBaseUrl(function(base){
+			urlJiraCreateSubtasks = base + ( path || "?method=createIssueSubtask" );
 
-		callback ? callback( getCreateTaskUrl() ) : null;
+			callback ? callback( getCreateTaskUrl() ) : null;
+		});
 
 		return jrt.getCreateTaskUrl();
 	}
 
 
 	function setSubtaskUrl ( path, callback ) {
-		urlJiraGetSubtasks = getBaseUrl() + ( path || "?method=getSubTasksByIssue" );
+		getBaseUrl(function(base){
+			urlJiraGetSubtasks = base + ( path || "?method=getSubTasksByIssue" );
 
-		callback ? callback( getSubtaskUrl() ) : null;
+			callback ? callback( getSubtaskUrl() ) : null;
+		});
 
 		return jrt.getSubtaskUrl();
 	}
@@ -420,7 +428,7 @@ function createSubTask(){
 				"description": "" */
 			};
 
-			if(data.summary.length > 4){
+			if( data.summary.length > 4 ) {
 				JQajax(jrt.getCreateTaskUrl(),data,createSubTaskCallback );
 			}
 		}

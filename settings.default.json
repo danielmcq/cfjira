@@ -1,4 +1,5 @@
 {
+	"cfapp": {},
 	"datasource": "default",
 	"datasources": {
 		"default": {
@@ -8,11 +9,22 @@
 			},
 			"description": "",
 			"format": "json",
-			"host": "",
-			"path": "/rest/api/2/",
+			"host": "localhost",
+			"paths": {
+				"base": "/rest",
+				"main": "/api/2/",
+				"auth": "/auth/2/"
+			},
 			"port": 80,
 			"title": "",
 			"type": "rest"
+		}
+	},
+	"template": "default",
+	"templates": {
+		"default": {
+			"typeFilter": [],
+			"tasks": {}
 		}
 	}
 }
