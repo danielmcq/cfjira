@@ -7,6 +7,9 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 
 
 
+	/**
+	 * @hint Constructor which must be ran for this CFC to function.
+	 */
 	public JiraProxy function init () {
 		var initComplete = false;
 
@@ -35,13 +38,15 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 
 
 	/**
-	* @parentKey The parent key to assign the subtasks
-	* @projectKey The key of the project that the issue should will belong to
-	* @issueTypeId Issue type ID
-	* @issueTypeName Issue type name
-	* @summary Issue Summary
-	* @description Issue Description
-	*/
+	 * @hint Create a new Jira issue and return the ID for the newly created issue
+	 *
+	 * @parentKey The parent key to assign the subtasks
+	 * @projectKey The key of the project that the issue should will belong to
+	 * @issueTypeId Issue type ID
+	 * @issueTypeName Issue type name
+	 * @summary Issue Summary
+	 * @description Issue Description
+	 */
 	remote string function createIssueSubTask (
 		required string parentKey,
 		required string projectKey,
@@ -51,7 +56,6 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 		//required string description
 	)
 		returnformat="JSON"
-		hint="Create a new JIRA issue and return the ID for the newly created issue"
 	{
 		var fields = {
 			"project" = {
@@ -185,27 +189,6 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 	}
 
 
-	public void function setIssueType ( required string type ) {
-		VARIABLES.pIssueType = ARGUMENTS.type;
-
-		return;
-	}
-
-
-	public void function setVersion ( required string version ) {
-		VARIABLES.pVersion = ARGUMENTS.version;
-
-		return;
-	}
-
-
-	public void function setStatus ( required string status ) {
-		VARIABLES.pStatus = ARGUMENTS.status;
-
-		return;
-	}
-
-
 	remote string function login ( required string username, required string password ) returnformat="JSON" {
 		var jiraAuth = new model.Jira();
 		var output = "";
@@ -215,7 +198,7 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 		jiraAuth.$setPort( VARIABLES.env.port );
 		jiraAuth.$setBasePath( VARIABLES.env.paths.base & VARIABLES.env.paths.auth );
 
-		output = jiraAuth.login( ArgumentCollection=Arguments );
+		output = jiraAuth.login( ArgumentCollection=ARGUMENTS );
 
 		pc.getResponse().setstatus( output.response.header["Status_Code"], output.response.header["Explanation"] );
 		pc.setHeader( "Content-Type", "application/json" );
@@ -389,7 +372,7 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 	}
 
 
-	remote string function getIssuesByFixVersions ( required array fixVersions=[] ) returnformat="JSON" {
+	remote string function getIssuesByFixVersions ( required array fixVersions ) returnformat="JSON" {
 		var issues = {};
 		var jql = [];
 		var response = {};
@@ -427,9 +410,7 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 		var cf = "customfield_" & ARGUMENTS.customFieldId;
 		var issue = {};
 		var output = "";
-		var params = {
-			"fields" = cf
-		};
+		var params = { "fields" = cf };
 
 		issue = VARIABLES.oJira.getIssue( idOrKey=ARGUMENTS.issueIdOrKey, params=params );
 

@@ -1,3 +1,8 @@
+/**
+ * This should represent an instance of a Jira server in a REST web server
+ * implemenation. It's not meant to represent issues or other data types. Those
+ * should be represented through their individual models/CFCs.
+ */
 component name="Jira" extends="model.rest" {
 	public Jira function init () {
 		SUPER.init();
