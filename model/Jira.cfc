@@ -120,15 +120,23 @@ component name="Jira" extends="model.rest" {
 	}
 
 
-	public struct function search ( numeric maxResults = 0 ) {
+	public struct function search ( string jql="", string fields="", numeric maxResults = 0 ) {
 		var data = {
-			"jql"=      _getJqlString( ArgumentCollection=ARGUMENTS )
-			,"fields"=  "key"
+			"jql"      = _getJqlString( ArgumentCollection=ARGUMENTS )
+			,"fields"  = "key"
 		};
 		var response = [];
 
 		if ( ARGUMENTS.maxResults > 0 ) {
 			data[ "maxResults" ] = ARGUMENTS.maxResults;
+		}
+
+		if ( Len( ARGUMENTS.jql ) ) {
+			data.jql = ARGUMENTS.jql;
+		}
+
+		if ( Len( ARGUMENTS.fields ) ) {
+			data.fields = ARGUMENTS.fields;
 		}
 
 		return _sendRequest( data=data, path="search" );
