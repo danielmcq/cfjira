@@ -16,6 +16,7 @@
 				"auth": "/auth/2/"
 			},
 			"port": 80,
+			"projects": {},
 			"title": "",
 			"type": "rest"
 		}
