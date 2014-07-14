@@ -314,7 +314,7 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 	}
 
 
-	remote string function getIssuesByLabel ( array statusFilter=[], array projectIdsOrKeys=[], array typeFilter=[] ) returnformat="JSON" {
+	remote string function getIssuesByLabel ( array statusFilter="#[]#", array projectIdsOrKeys="#[]#", array typeFilter="#[]#" ) returnformat="JSON" {
 		var issues = {};
 		var jql = [];
 		var response = {};
