@@ -424,11 +424,21 @@ component name="JiraProxy" displayname="Jira Proxy Service" {
 
 
 	remote string function getCustomFieldValue ( required string customFieldId, required string issueIdOrKey ) returnformat="JSON" {
+		var cf = "customfield_" & ARGUMENTS.customFieldId;
 		var issue = {};
 		var output = "";
+		var params = {
+			"fields" = cf
+		};
 
-		issue = VARIABLES.oJira.getIssue( idOrKey=ARGUMENTS.issueIdOrKey, params={ "fields"="customfield_#ARGUMENTS.customFieldId#" } );
-output = issue;
+		issue = VARIABLES.oJira.getIssue( idOrKey=ARGUMENTS.issueIdOrKey, params=params );
+
+		if (
+				StructKeyExists( issue, "fields" )
+				&& StructKeyExists( issue.fields, cf )
+		) {
+			output = issue.fields[ cf ];
+		}
 
 		return SerializeJSON( output );
 	}
