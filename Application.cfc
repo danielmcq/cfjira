@@ -68,7 +68,7 @@ component name="JiraWS" displayname="Jira Web Service"
 		URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
 
 		if ( URL.format == "json" || _getRequestedDataType( GetHttpRequestData().headers ) == "application/json" ) {
-			_jsonResponse( { "baseUrl"="jiraSvc.cfc" } );
+			_jsonResponse( { "baseUrl"="JiraProxy.cfc" } );
 		} else {
 			if ( Len( URL.mode ) ) {
 				bodyTemplate = "view/_" & URL.mode & ".cfm";

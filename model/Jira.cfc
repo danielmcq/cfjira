@@ -79,8 +79,23 @@ component name="Jira" extends="model.rest" {
 	}
 
 
+	public array function getFixVersionsByProject ( required string idOrKey ) {
+		return get( path="project/#ARGUMENTS.idOrKey#/versions" ).Response.body;
+	}
+
+
 	public array function getIssueComments ( required string idOrKey ) {
 		return get( path="issue/#ARGUMENTS.idOrKey#/comment" ).Response.body.comments;
+	}
+
+
+	public array function getIssueLabels ( required string idOrKey ) {
+		return get( path="issue/#ARGUMENTS.idOrKey#" ).Response.body.fields.labels;
+	}
+
+
+	public array function getIssueLinks ( required string idOrKey ) {
+		return get( path="issue/#ARGUMENTS.idOrKey#/remotelink" ).Response.body;
 	}
 
 

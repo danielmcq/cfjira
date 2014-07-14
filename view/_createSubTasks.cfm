@@ -50,7 +50,7 @@
 		return output;
 	}
 
-	jiraWs         = new jiraSvc();
+	jiraWs         = new JiraProxy();
 	subtaskTypes   = jiraWs.getSubTaskTypes();
 	requiredTasks  = jiraWs.getRequiredIssueTypes();
 </cfscript>

@@ -52,7 +52,7 @@
 			// to handle the delay in the response
 			//setBaseUrl( data.baseUrl );
 			// Hardcoding until this can be fixed
-			setBaseUrl( "jiraSvc.cfc" );
+			setBaseUrl( "JiraProxy.cfc" );
 			callback ? callback( getBaseUrl() ) : null;
 		});
 	};
