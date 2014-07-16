@@ -210,7 +210,15 @@
 
 	// BEGIN: Private Methods
 	function loginError (jqXHR,textStatus,errorThrown) {
-		console ? console.log("loginError") : null;
+		if (
+				errorThrown === "Unauthorized"
+				&& typeof jqXHR.responseJSON != "undefined"
+				&& typeof jqXHR.responseJSON.response.body != "undefined"
+		) {
+			var response = jqXHR.responseJSON.response.body;
+			console.log( response );
+		}
+		//console ? console.log("loginError") : null;
 	}
 
 
@@ -234,6 +242,7 @@
 
 
 	function logoutSuccess (data,textStatus,jqXHR) {
+		$(SELECTOR.INPUT.USERNAME).show().attr("disabled", false).val("");
 		$(SELECTOR.INPUT.PASSWORD).show().attr("disabled", false).val("");
 		$(SELECTOR.BUTTON.LOGIN).show().attr("disabled", false);
 		$(SELECTOR.BUTTON.LOGOUT).hide().attr("disabled", true);
