@@ -27,5 +27,21 @@
 			"typeFilter": [],
 			"tasks": {}
 		}
+	},
+	"mode": "dev",
+	"modes": {
+		"dev": {
+			"datasource": "default",
+			"label": "Development"
+		},
+		"prod": {
+			"datasource": "prod",
+			"label": "Production"
+		},
+		"test": {
+			"datasource": "stage",
+			"label": "Testing"
+		},
 	}
+
 }

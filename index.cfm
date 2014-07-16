@@ -17,10 +17,11 @@
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="js/main.js"></script>
 </head>
 <body>
 <div class="container-fluid">
-	<div class="alert alert-warning fade in">
+	<div id="environment-notice" class="alert alert-warning fade in">
 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 		<h1 class="text-center">TESTING</h1>
 		<span>
@@ -32,5 +33,6 @@
 	</div>
 </div>
 <cfoutput>#ARGUMENTS.body#</cfoutput>
+<script>$(document).ready(jrt.init);</script>
 </body>
 </html>
