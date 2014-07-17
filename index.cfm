@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Jira Tools</title>
+	<title>Jira REST Tools</title>
 
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<link rel="stylesheet" media="screen" href="css/main.css">
@@ -23,11 +23,11 @@
 <div class="container-fluid">
 	<div id="environment-notice" class="alert alert-warning fade in">
 		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-		<h1 class="text-center">TESTING</h1>
+		<h1 class="text-center environment-label">TESTING</h1>
 		<span>
 			Currently pointed to
-			<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link" target="_blank">
-				#appConfig.datasources[ appConfig.datasource ].title#
+			<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
+				<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
 			</a></cfoutput>
 		</span>
 	</div>
