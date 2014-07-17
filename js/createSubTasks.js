@@ -86,6 +86,23 @@
 	};
 
 
+	ui.disableControls = function () {
+		$( SELECTOR.BUTTON.CREATE_TASKS ).prop( "disabled", true );
+		$( SELECTOR.BUTTON.CLEAR_SELECTED ).prop( "disabled", true );
+		$( SELECTOR.BUTTON.SELECT_REQUIRED ).prop( "disabled", true );
+		$( SELECTOR.BUTTON.SELECT_ALL ).prop( "disabled", true );
+	};
+
+
+	ui.enableControls = function () {
+		$( SELECTOR.BUTTON.CREATE_TASKS ).prop( "disabled", false );
+		$( SELECTOR.BUTTON.CLEAR_SELECTED ).prop( "disabled", false );
+		$( SELECTOR.BUTTON.SELECT_REQUIRED ).prop( "disabled", false );
+		$( SELECTOR.BUTTON.SELECT_ALL ).prop( "disabled", false );
+
+	};
+
+
 	ui.issueCreateSubTasks = function (){
 		var taskVal, subtask;
 
@@ -106,7 +123,7 @@
 					"issueTypeName": $("#taskrow_" + $("#issueTypeVal_" + taskVal).val() + " img").attr( "title" ),
 					"summary": $("#summary_" + taskVal).val()
 				};
-				jrt.issue.createSubTask( subtask );
+				jrt.issue.createSubTask( subtask, new Date().getTime().toString() );
 			}
 		});
 
@@ -175,7 +192,7 @@
 
 
 	ui.issuesMarkRequired = function () {
-		issuesUnmarkAll();
+		ui.issuesUnmarkAll();
 
 		$(".required input[type=checkbox]").each(function () {
 			$(this).prop("checked", true);
@@ -362,26 +379,33 @@
 **********************************/
 (function ( iss, undefined ) {
 	var isAuthenticated = false;
+	var createQueue = {};
 
 
-	iss.createSubTask = function ( subtask ){
+	iss.createSubTask = function ( subtask, requestId ){
 		var MIN_SUMMARY_LENGTH = 4;
 
+		if ( !requestId ) requestId = new Date().getTime().toString();
+
 		if ( subtask.summary.length > MIN_SUMMARY_LENGTH ) {
+			createQueueAdd( requestId );
 			$.ajax({
 				url: jrt.getCreateTaskUrl(),
 				data: subtask,
-				success: function ( data, textStatus, jqXHR ){
+				"success": function ( data, textStatus, jqXHR ){
 					if ( typeof data.key != "undefined" ) {
 						jrt.ui.addSubTaskIssue( data );
 					}
 				},
-				error: function ( jqXHR, textStatus, errorThrown ) {
+				"error": function ( jqXHR, textStatus, errorThrown ) {
 					jrt.ui.notify( "Failed to create subtask\n'"+subtask.summary+"'" );
+				},
+				"complete": function ( jqXHR, textStatus ) {
+					createQueueRemove( requestId );
 				}
 			});
 		} else {
-			ui.notify( "Summary length must be more than "+MIN_SUMMARY_LENGTH+" characters long." );
+			jrt.ui.notify( "Summary length must be more than "+MIN_SUMMARY_LENGTH+" characters long." );
 		}
 	};
 
@@ -427,6 +451,39 @@
 	iss.parseWebUrl = function ( issue ) {
 		return issue.self.replace("rest/api/2/issue", "browse").replace(issue.id, issue.key);
 	};
+
+
+	function createQueueAdd ( requestId ) {
+		if ( $.isEmptyObject( createQueue ) ) eventQueueFillStart();
+
+		createQueue[ requestId ] = null;
+		eventQueueAdd();
+	}
+
+
+	function createQueueRemove ( requestId ) {
+		delete createQueue[ requestId ];
+
+		if ( $.isEmptyObject( createQueue ) ) {
+			eventQueueEmptied();
+		};
+	}
+
+
+	function eventQueueFillStart () {
+		jrt.ui.disableControls();
+	}
+
+
+	function eventQueueAdd () {
+		// Do nothing
+	}
+
+
+	function eventQueueEmptied () {
+		jrt.ui.enableControls();
+		jrt.ui.issuesUnmarkAll();
+	}
 })( ( jrt.issue = jrt.issue || {} ) );
 /**********************************
  * END: Issue module
