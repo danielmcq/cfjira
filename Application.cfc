@@ -53,29 +53,36 @@ component name="JiraWS" displayname="Jira Web Service"
 			hint="Fires once per page request into this app."
 	{
 		param name="URL.format"        default="html";
-		param name="URL.mode"          default="createSubTasks";
+		param name="URL.mode"          default="Jira";
+		param name="URL.action"        default="createSubTasks";
 		param name="URL.reloadConfig"  default="false";
 
-		var bodyTemplate  = "";
 		var htmlBody      = "";
+		var webHandler = {};
+		var webMode = "";
+		var wr = {};
 
 		// Dynamically reload the config from files.
 		if ( URL.reloadConfig ) {
 			_loadConfig ( APPLICATION.config, "APPLICATION" );
 		}
 
-		// Modes can only contain letters and underscores
-		URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
-
 		if ( URL.format == "json" || _getRequestedDataType( GetHttpRequestData().headers ) == "application/json" ) {
 			_jsonResponse( { "baseUrl"="JiraProxy.cfc" } );
 		} else {
-			if ( Len( URL.mode ) ) {
-				bodyTemplate = "view/_" & URL.mode & ".cfm";
-			}
+			if ( FileExists( "controller/"&URL.mode&".cfc" ) || FileExists( ExpandPath( "controller/"&URL.mode&".cfc" ) ) ) {
+				// Modes can only contain letters and underscores
+				URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
+				webMode = "controller."&URL.mode;
+				webHandler = new "#webMode#"();
 
-			if ( FileExists( bodyTemplate ) || FileExists( ExpandPath( bodyTemplate ) ) ) {
-				savecontent variable="htmlBody" { include bodyTemplate; }
+				wr = new model.webRequest();
+				wr.setHeaders( Duplicate( GetHttpRequestData().headers ) );
+				wr.setUrl( Duplicate( URL ) );
+				wr.setForm( Duplicate( FORM ) );
+				wr.setTemplate( ARGUMENTS.TargetPage );
+
+				htmlBody = webHandler.htmlBody( wr );
 			}
 
 			_htmlResponse( htmlBody );
