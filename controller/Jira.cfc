@@ -12,6 +12,7 @@ component name="Jira" implements="interface.webResponder" {
 
 	public string function htmlBody ( required struct webRequest ) {
 		var action = "";
+		var appConfig = APPLICATION.getConfig();
 		var bodyTemplate = "";
 		var output = "";
 		var wr = ARGUMENTS.webRequest;

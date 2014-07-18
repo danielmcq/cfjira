@@ -57,9 +57,7 @@ component name="JiraWS" displayname="Jira Web Service"
 		param name="URL.action"        default="createSubTasks";
 		param name="URL.reloadConfig"  default="false";
 
-		var bodyTemplate  = "";
-		var htmlBody      = "";
-
+		var htmlBody = "";
 		var webHandler = {};
 		var webMode = "";
 		var wr = {};
@@ -69,14 +67,12 @@ component name="JiraWS" displayname="Jira Web Service"
 			_loadConfig ( APPLICATION.config, "APPLICATION" );
 		}
 
-		// Modes can only contain letters and underscores
-		URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
-
 		if ( URL.format == "json" || _getRequestedDataType( GetHttpRequestData().headers ) == "application/json" ) {
 			_jsonResponse( { "baseUrl"="JiraProxy.cfc" } );
 		} else {
-
 			if ( FileExists( "controller/"&URL.mode&".cfc" ) || FileExists( ExpandPath( "controller/"&URL.mode&".cfc" ) ) ) {
+				// Modes can only contain letters and underscores
+				URL.mode = REReplaceNoCase( URL.mode, "[^a-z_]*", "", "all" );
 				webMode = "controller."&URL.mode;
 
 				wr = new model.webRequest();
@@ -88,14 +84,6 @@ component name="JiraWS" displayname="Jira Web Service"
 				webHandler = new "#webMode#"();
 
 				htmlBody = webHandler.htmlBody( wr );
-			} else {
-				if ( Len( URL.mode ) ) {
-					bodyTemplate = "view/_" & URL.mode & ".cfm";
-				}
-
-				if ( FileExists( bodyTemplate ) || FileExists( ExpandPath( bodyTemplate ) ) ) {
-					savecontent variable="htmlBody" { include bodyTemplate; }
-				}
 			}
 
 			_htmlResponse( htmlBody );
@@ -156,7 +144,6 @@ component name="JiraWS" displayname="Jira Web Service"
 
 
 	private string function _applyHtmlTemplate ( string body="", string templateName = "index.cfm" ) {
-		var appConfig = getConfig();
 		var output = "";
 
 		if ( FileExists( ARGUMENTS.templateName ) || FileExists( ExpandPath( ARGUMENTS.templateName ) ) ) {

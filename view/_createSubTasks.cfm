@@ -18,15 +18,7 @@
 				</div>
 			</form>
 
-			<!--- <span class="navbar-right">
-				<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
-					<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
-				</a></cfoutput>
-			</span> --->
 			<form class="navbar-form navbar-right" name="authenticateForm" id="authenticateForm" role="form">
-				<span class="navbar-text" id="loggedInUser">
-					Logged in as: <span class="name"></span>
-				</span>
 				<div class="form-group">
 					<input
 						type="username"
@@ -55,6 +47,15 @@
 				<button class="btn btn-success btn-sm" id="login" type="submit">Jira Login</button>
 				<button class="btn btn-success btn-sm" id="logout" type="button">Jira Logout</button>
 			</form>
+			<span class="navbar-right navbar-text" id="loggedInUser">
+				Logged in as: <span class="name"></span>
+			</span>
+			<span class="navbar-right navbar-text">
+				Environment:
+				<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
+					<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
+				</a></cfoutput>
+			</span>
 		</div>
 
 		<div class="panel panel-primary">

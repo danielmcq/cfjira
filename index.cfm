@@ -20,18 +20,6 @@
 	<script src="js/main.js"></script>
 </head>
 <body>
-<div class="container-fluid">
-	<div id="environment-notice" class="alert alert-warning fade in">
-		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-		<h1 class="text-center environment-label">TESTING</h1>
-		<span>
-			Currently pointed to
-			<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
-				<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
-			</a></cfoutput>
-		</span>
-	</div>
-</div>
 <cfoutput>#ARGUMENTS.body#</cfoutput>
 <script>$(document).ready(jrt.init);</script>
 </body>
