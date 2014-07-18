@@ -7,17 +7,10 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="?createSubTasks">Jira Issue Subtask Creator</a>
+			<a class="navbar-brand" href="#">Jira Tools</a>
 		</div>
 
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-			<form method="post" action="#" class="navbar-form navbar-left" name="parentIssueForm" id="parentIssueForm" role="search">
-				<button class="btn btn-primary btn-sm" type="button">Find Parent Issue</button>
-				<div class="form-group">
-					<input type="search" class="form-control input-sm" id="parentKey" name="parentKey" value="" autocomplete="off" placeholder="XXX-#####">
-				</div>
-			</form>
-
 			<form class="navbar-form navbar-right" name="authenticateForm" id="authenticateForm" role="form">
 				<div class="form-group">
 					<input
@@ -50,7 +43,7 @@
 			<span class="navbar-right navbar-text" id="loggedInUser">
 				Logged in as: <span class="name"></span>
 			</span>
-			<span class="navbar-right navbar-text">
+			<span class="navbar-text">
 				Environment:
 				<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
 					<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
@@ -59,10 +52,16 @@
 		</div>
 
 		<div class="panel panel-primary">
-			<div class="panel-heading">
-				Parent Issue:
-			</div>
 			<div class="panel-body">
+				<form method="post" action="#" class="" name="parentIssueForm" id="parentIssueForm" role="search">
+					<span class="input-group">
+						<span class="input-group-btn">
+							<button class="btn btn-primary btn-sm" type="button">Find Parent Issue</button>
+						</span>
+						<input type="search" class="form-control input-sm" id="parentKey" name="parentKey" value="" autocomplete="off" placeholder="XXX-#####">
+					</span>
+				</form>
+
 				<span id="issueStatus"></span>
 				<span id="issueSummary">No Parent Issue Selected</span>
 			</div>
@@ -84,27 +83,26 @@
 	</div>
 </nav>
 
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-md-6">
-			<span class="bg-danger">* missing required tasks</span>
-			<span class="bg-success">* has required tasks</span>
-		</div>
-	</div>
+<div class="container">
 	<ul class="list-group" id="subTasks">
 	<cfloop array="#subtaskTypes#" index="type">
 	<cfoutput>
-		<li id="taskrow_#type.id#" class="collapse list-group-item taskrow task_#type.id#<cfif ArrayFind( requiredTasks, type.id )> required list-group-item-danger</cfif>" x-jira-issue-type="#type.id#">
+		<li id="taskrow_#type.id#" class="collapse list-group-item taskrow task_#type.id#<cfif ArrayFind( requiredTasks, type.id )> required</cfif>" x-jira-issue-type="#type.id#">
 			<img src="#type.iconUrl#" title="#type.name#">
 			<a href="##type-group-#type.id#" data-toggle="collapse" data-parent="##taskrow_#type.id#">
-				#type.name#<cfif ArrayFind( requiredTasks, type.id )>*</cfif>
-				<span class="badge">0</span>
+				#type.name#
 			</a>
+			<cfif ArrayFind( requiredTasks, type.id )>
+			<span class="task-counts">
+				<span class="badge" title="Number of tasks already created for this type">0</span>
+				/ <span class="badge<cfif ArrayFind( requiredTasks, type.id )> alert-danger<cfelse> alert-success</cfif>" title="Number of required tasks for this type">#getTaskCount(type.id)#</span>
+			</span>
+			</cfif>
 			<ul class="list-group list-collapse collapse in" id="type-group-#type.id#">
-			<cfloop from="1" to="#gettaskCount(type.id)#" index="i">
+			<cfloop from="1" to="#getTaskCount(type.id)#" index="i">
 				<li class="list-group-item">
 					<input type="hidden" id="issueTypeVal_#type.id#_#i#" value="#type.id#">
-					<div class="input-group input-group-sm<cfif ArrayFind( requiredTasks, type.id )> has-error</cfif>">
+					<div class="input-group input-group-sm">
 						<span class="input-group-addon">
 							<input
 								type="checkbox"
