@@ -11,20 +11,20 @@ component name="Jira" implements="interface.webResponder" {
 
 
 	public string function htmlBody ( required struct webRequest ) {
-		var output = "";
-		var wr = ARGUMENTS.webRequest;
 		var action = "";
 		var bodyTemplate = "";
+		var output = "";
+		var wr = ARGUMENTS.webRequest;
 
 		action = REReplaceNoCase( wr.getUrl().action, "[^a-z_]*", "", "all" );
 
 		if ( Len( action ) ) {
 			bodyTemplate = "view/_" & action & ".cfm";
-		}
 
-		if ( FileExists( bodyTemplate ) ) {
-			bodyTemplate = "../"&bodyTemplate;
-			savecontent variable="output" { include bodyTemplate; }
+			if ( FileExists( ExpandPath( bodyTemplate ) ) ) {
+				bodyTemplate = "../"&bodyTemplate;
+				savecontent variable="output" { include bodyTemplate; }
+			}
 		}
 
 		return output;

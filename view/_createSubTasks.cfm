@@ -18,6 +18,11 @@
 				</div>
 			</form>
 
+			<!--- <span class="navbar-right">
+				<cfoutput><a href="http://#appConfig.datasources[ appConfig.datasource ].host#:#appConfig.datasources[ appConfig.datasource ].port#/" class="alert-link datasource-url" target="_blank">
+					<span class="datasource-title">#appConfig.datasources[ appConfig.datasource ].title#</span>
+				</a></cfoutput>
+			</span> --->
 			<form class="navbar-form navbar-right" name="authenticateForm" id="authenticateForm" role="form">
 				<span class="navbar-text" id="loggedInUser">
 					Logged in as: <span class="name"></span>
